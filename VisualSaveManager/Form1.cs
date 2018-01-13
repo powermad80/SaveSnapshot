@@ -6,6 +6,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Data.SQLite;
+using Dapper;
+using Dapper.Contrib;
+using Dapper.Contrib.Extensions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -27,151 +31,27 @@ namespace VisualSaveManager
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            if (comboBox2.Text == "Select Game")
-            {
-                MessageBox.Show("You must select a game");
-                return;
-            }
-            string game = comboBox2.Text;
-            string name = textBox1.Text;
-            bool alreadyExists = false;
-            var fS = new FileStream("~/backups/" + game + '/' + "saves.txt", FileMode.Open, FileAccess.Read);
-            using (var streamReader = new StreamReader(fS, Encoding.UTF8))
-            {
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    if (name == line)
-                    {
-                        alreadyExists = true;
-                    }
-                }
-            }
-
-            if (!alreadyExists)
-            {
-                using (StreamWriter file =
-                    new StreamWriter("~/backups/" + game + '/' + "saves.txt", true))
-                {
-                    file.WriteLine(name);
-                }
-            }
-
-            Directory.CreateDirectory("~/backups/" + game + '/' + name + '/');
-            DirectoryCopyExample.DirectoryCopy(gameDir, "~/backups/" + game + '/' + name + '/', true);
-            if (!alreadyExists)
-                comboBox1.Items.Add(name);
-            MessageBox.Show("Success!");
+            
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (comboBox2.Text == "Select Game")
-            {
-                MessageBox.Show("You must select a game");
-                return;
-            }
-
-            if (comboBox1.Text == null)
-            {
-                MessageBox.Show("Select a backup to restore.");
-                return;
-            }
-
-            string game = comboBox2.Text;
-            string name = comboBox1.Text;
-            DirectoryCopyExample.DirectoryCopy("~/backups/" + game + '/' + name + '/', gameDir, true);
-            MessageBox.Show("Success!");
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            selectedSave = comboBox1.Text;
-        }
-
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (comboBox2.SelectedIndex == -1)
-                return;
-
-            var fS = new FileStream("games.txt", FileMode.Open, FileAccess.Read);
-            using (var streamReader = new StreamReader(fS, Encoding.UTF8))
-            {
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    if (comboBox2.Text == line)
-                    {
-                        gameDir = streamReader.ReadLine();
-                        if (!Directory.Exists(gameDir))
-                        {
-                            gameDir = null;
-                            comboBox2.SelectedIndex = -1;
-                            MessageBox.Show("Game save folder not found. Has it moved, or is it located on a removed drive?");
-                            return;
-                        }
-                    }
-
-                }
-                loadList(comboBox1, "~/backups/" + comboBox2.Text + "/saves.txt");
-                return;
-            }
-        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            loadList(comboBox2, "games.txt");
-        }
-
-        public void loadList(ComboBox lst, string file)
-        {
-            lst.Items.Clear();
-            string line;
-            StreamReader readFile = new StreamReader(file);
-            while ((line = readFile.ReadLine()) != null)
+            List<string> games;
+            using (IDbConnection con = Modules.DBConnection())
             {
-                if ((line[0] != '/') && (line[1] != ':'))
-                    lst.Items.Add(line);
+                con.Open();
+                games = con.Query<string>("SELECT Name FROM GAMES").ToList<string>();
+                con.Close();
             }
-            readFile.Close();
-        }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            CommonOpenFileDialog fbd = new CommonOpenFileDialog();
-            fbd.IsFolderPicker = true;
-            if (fbd.ShowDialog() == CommonFileDialogResult.Ok)
+            foreach (string game in games)
             {
-                if (GetDirSize(fbd.FileName) > 5000000)
-                {
-                    var confirmResult = MessageBox.Show("Directory size exceeds 50MB, save directories are usually much smaller. Proceeding with backup may take a while, continue anyway?", "Large Directory Detected", MessageBoxButtons.OKCancel);
-                    if (confirmResult == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                }
-                string result = fbd.FileName;
-                comboBox2.Items.Add(textBox2.Text);
-                using (StreamWriter file = new StreamWriter("games.txt", true))
-                {
-                    file.WriteLine(textBox2.Text);
-                    file.WriteLine(result);
-                }
-                Directory.CreateDirectory("~/backups/" + textBox2.Text + "/");
-                File.Create("~/backups/" + textBox2.Text + "/saves.txt").Close();
-                MessageBox.Show("Success!");
+                GameSelect.Items.Add(game);
             }
-            else
-            {
-                return;
-            }
-            fbd.Dispose();
+
         }
+
 
         private void delBackup_Click(object sender, EventArgs e)
         {
@@ -183,30 +63,20 @@ namespace VisualSaveManager
             }
             else if (cont == DialogResult.Yes)
             {
-                string game = comboBox2.Text;
-                string name = comboBox1.Text;
-                Directory.Delete("~/backups/" + game + '/' + name + '/', true);
-
-                string[] savefile = File.ReadAllLines("~/backups/" + game + '/' + "saves.txt");
-                using (StreamWriter f = new StreamWriter("~/backups/" + game + '/' + "saves.txt"))
+                using (SQLiteConnection con = Modules.DBConnection())
                 {
-                    foreach (string s in savefile)
-                    {
-                        if (s != name)
-                            f.WriteLine(s);
-                    }
+                    con.Open();
+                    new SQLiteCommand("DELETE FROM SAVES WHERE Name = '" + SaveSelect.Text + "'", con).ExecuteNonQuery();
+                    con.Close();
                 }
-                comboBox1.Items.Remove(name);
-                savefile = null;
+
+                Directory.Delete("~/backups/" + GameSelect.Text + '/' + SaveSelect.Text + '/', true);
+                SaveSelect.Items.Remove(SaveSelect.Text);
+                SaveSelect.SelectedIndex = -1;
                 MessageBox.Show("Backup deleted.");
             }
         }
 
-        private void textBox1_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (textBox1.Text == "Backup Name")
-                textBox1.Text = "";
-        }
 
         private void delGame_Click(object sender, EventArgs e)
         {
@@ -217,28 +87,21 @@ namespace VisualSaveManager
             }
             else if (cont == DialogResult.Yes)
             {
-                string game = comboBox2.Text;
-                bool skip = false;
-                Directory.Delete("~/backups/" + game + '/', true);
 
-                string[] gamefile = File.ReadAllLines("games.txt");
-                using (StreamWriter f = new StreamWriter("games.txt"))
+                using (SQLiteConnection con = Modules.DBConnection())
                 {
-                    foreach (string s in gamefile)
-                    {
-                        if (s == game)
-                        {
-                            skip = true;
-                        }
-                        else if (!skip)
-                        {
-                            f.WriteLine(s);
-                            skip = false;
-                        }
-                    }
+                    con.Open();
+                    new SQLiteCommand("DELETE FROM GAMES WHERE Name = '" + GameSelect.Text + "'", con).ExecuteNonQuery();
+                    new SQLiteCommand("DELETE FROM SAVES WHERE Game = '" + GameSelect.Text + "'", con).ExecuteNonQuery();
+                    con.Close();
                 }
-                gamefile = null;
-                comboBox2.Items.Remove(game);
+
+                Directory.Delete("~/backups/" + GameSelect.Text + '/', true);
+
+                GameSelect.Items.Remove(GameSelect.Text);
+                SaveSelect.Items.Clear();
+                GameSelect.SelectedIndex = -1;
+                SaveSelect.SelectedIndex = -1;
                 MessageBox.Show("All backups deleted.");
             }
 
@@ -269,15 +132,146 @@ namespace VisualSaveManager
             return size;
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
         private void textBox2_MouseClick(object sender, MouseEventArgs e)
         {
-            if (textBox2.Text == "Game Name")
-                textBox2.Text = "";
+            if (GameNameField.Text == "Game Name")
+                GameNameField.Text = "";
+        }
+
+        private void GameSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (GameSelect.SelectedIndex == -1)
+                return;
+
+            using (IDbConnection con = Modules.DBConnection())
+            {
+                con.Open();
+                string gamePath = con.Query<string>("SELECT Path FROM GAMES WHERE Name = '" + GameSelect.Text + "'").First();
+
+                if (!Directory.Exists(gamePath))
+                {
+                    GameSelect.SelectedIndex = -1;
+                    MessageBox.Show("Game save folder not found. Has it moved, or is it located on a removed drive?");
+                    con.Close();
+                    return;
+                }
+
+                List<string> saves = con.Query<string>("SELECT Name FROM SAVES WHERE Game = '" + GameSelect.Text + "'").ToList<string>();
+                con.Close();
+                SaveSelect.Items.Clear();
+                foreach (string save in saves)
+                {
+                    SaveSelect.Items.Add(save);
+                }
+            }
+        }
+
+        private void AddGameButton_Click(object sender, EventArgs e)
+        {
+            CommonOpenFileDialog fbd = new CommonOpenFileDialog();
+            fbd.IsFolderPicker = true;
+            if (fbd.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                if (GetDirSize(fbd.FileName) > 5000000)
+                {
+                    var confirmResult = MessageBox.Show("Directory size exceeds 50MB, save directories are usually much smaller. Proceeding with backup may take a while, continue anyway?", "Large Directory Detected", MessageBoxButtons.OKCancel);
+                    if (confirmResult == DialogResult.Cancel)
+                    {
+                        fbd.Dispose();
+                        return;
+                    }
+                }
+                string result = fbd.FileName;
+
+                using (IDbConnection con = Modules.DBConnection())
+                {
+                    GameObj game = new GameObj();
+                    game.Name = GameNameField.Text;
+                    game.Path = result;
+
+                    con.Open();
+                    con.Insert<GameObj>(game);
+                    con.Close();
+                }
+                GameSelect.Items.Add(GameNameField.Text);
+                Directory.CreateDirectory("~/backups/" + GameNameField.Text + "/");
+                MessageBox.Show("Success!");
+            }
+            else
+            {
+                fbd.Dispose();
+                return;
+            }
+            fbd.Dispose();
+        }
+
+        private void RestoreButton_Click(object sender, EventArgs e)
+        {
+            string path;
+
+            if (GameSelect.Text == "Select Game")
+            {
+                MessageBox.Show("You must select a game");
+                return;
+            }
+
+            if (SaveSelect.Text == null)
+            {
+                MessageBox.Show("Select a backup to restore.");
+                return;
+            }
+
+            using (IDbConnection con = Modules.DBConnection())
+            {
+                con.Open();
+                path = con.Query<string>("SELECT Path FROM GAMES WHERE Name = '" + GameSelect.Text + "'").First<string>();
+                con.Close();
+            }
+
+                DirectoryCopyExample.DirectoryCopy("~/backups/" + GameSelect.Text + '/' + SaveSelect.Text + '/', path, true);
+            MessageBox.Show("Success!");
+        }
+
+        private void BackupButton_Click(object sender, EventArgs e)
+        {
+            if (GameSelect.SelectedIndex == -1)
+            {
+                MessageBox.Show("You must select a game");
+                return;
+            }
+
+            using (IDbConnection con = Modules.DBConnection())
+            {
+                con.Open();
+                if (con.Query<string>("SELECT Game FROM SAVES WHERE Name = '" + BackupNameField.Text + "' AND Game = '" + GameSelect.Text + "'").ToList<string>().Count > 0)
+                {
+                    MessageBox.Show("A backup with this name already exists, please enter another name.");
+                    con.Close();
+                    return;
+                }
+
+                SaveObj newSave = new SaveObj();
+                newSave.Game = GameSelect.Text;
+                newSave.Name = BackupNameField.Text;
+                newSave.Path = "~/backups/" + GameSelect.Text + '/' + BackupNameField.Text + '/';
+
+                con.Insert<SaveObj>(newSave);
+                string path = con.Query<string>("SELECT Path FROM GAMES WHERE Name = '" + GameSelect.Text + "'").First<string>();
+                con.Close();
+
+                Directory.CreateDirectory(newSave.Path);
+                DirectoryCopyExample.DirectoryCopy(path, newSave.Path, true);
+                SaveSelect.Items.Add(BackupNameField.Text);
+            }
+
+            MessageBox.Show("Success!");
+        }
+
+        private void BackupNameField_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (BackupNameField.Text == "Backup Name")
+                BackupNameField.Text = "";
         }
     }
 }

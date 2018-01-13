@@ -29,86 +29,83 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.BackupButton = new System.Windows.Forms.Button();
+            this.RestoreButton = new System.Windows.Forms.Button();
+            this.BackupNameField = new System.Windows.Forms.TextBox();
+            this.SaveSelect = new System.Windows.Forms.ComboBox();
+            this.GameSelect = new System.Windows.Forms.ComboBox();
+            this.AddGame = new System.Windows.Forms.Button();
+            this.GameNameField = new System.Windows.Forms.TextBox();
             this.delBackup = new System.Windows.Forms.Button();
             this.delGame = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // BackupButton
             // 
-            this.button1.Location = new System.Drawing.Point(12, 14);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Backup";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.BackupButton.Location = new System.Drawing.Point(12, 14);
+            this.BackupButton.Name = "BackupButton";
+            this.BackupButton.Size = new System.Drawing.Size(75, 23);
+            this.BackupButton.TabIndex = 0;
+            this.BackupButton.Text = "Backup";
+            this.BackupButton.UseVisualStyleBackColor = true;
+            this.BackupButton.Click += new System.EventHandler(this.BackupButton_Click);
             // 
-            // button2
+            // RestoreButton
             // 
-            this.button2.Location = new System.Drawing.Point(12, 43);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Restore";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.RestoreButton.Location = new System.Drawing.Point(12, 43);
+            this.RestoreButton.Name = "RestoreButton";
+            this.RestoreButton.Size = new System.Drawing.Size(75, 23);
+            this.RestoreButton.TabIndex = 1;
+            this.RestoreButton.Text = "Restore";
+            this.RestoreButton.UseVisualStyleBackColor = true;
+            this.RestoreButton.Click += new System.EventHandler(this.RestoreButton_Click);
             // 
-            // textBox1
+            // BackupNameField
             // 
-            this.textBox1.Location = new System.Drawing.Point(94, 16);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(259, 20);
-            this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "Backup Name";
-            this.textBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBox1_MouseClick);
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.BackupNameField.Location = new System.Drawing.Point(94, 16);
+            this.BackupNameField.Name = "BackupNameField";
+            this.BackupNameField.Size = new System.Drawing.Size(259, 20);
+            this.BackupNameField.TabIndex = 2;
+            this.BackupNameField.Text = "Backup Name";
+            this.BackupNameField.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BackupNameField_MouseClick);
             // 
-            // comboBox1
+            // SaveSelect
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(94, 45);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(178, 21);
-            this.comboBox1.TabIndex = 3;
-            this.comboBox1.Text = "Select Backup";
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.SaveSelect.FormattingEnabled = true;
+            this.SaveSelect.Location = new System.Drawing.Point(94, 45);
+            this.SaveSelect.Name = "SaveSelect";
+            this.SaveSelect.Size = new System.Drawing.Size(178, 21);
+            this.SaveSelect.TabIndex = 3;
+            this.SaveSelect.Text = "Select Backup";
             // 
-            // comboBox2
+            // GameSelect
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(12, 72);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(260, 21);
-            this.comboBox2.TabIndex = 4;
-            this.comboBox2.Text = "Select Game";
-            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            this.GameSelect.FormattingEnabled = true;
+            this.GameSelect.Location = new System.Drawing.Point(12, 72);
+            this.GameSelect.Name = "GameSelect";
+            this.GameSelect.Size = new System.Drawing.Size(260, 21);
+            this.GameSelect.TabIndex = 4;
+            this.GameSelect.Text = "Select Game";
+            this.GameSelect.SelectedIndexChanged += new System.EventHandler(this.GameSelect_SelectedIndexChanged);
             // 
-            // button3
+            // AddGame
             // 
-            this.button3.Location = new System.Drawing.Point(12, 99);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "Add Game";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.AddGame.Location = new System.Drawing.Point(12, 99);
+            this.AddGame.Name = "AddGame";
+            this.AddGame.Size = new System.Drawing.Size(75, 23);
+            this.AddGame.TabIndex = 5;
+            this.AddGame.Text = "Add Game";
+            this.AddGame.UseVisualStyleBackColor = true;
+            this.AddGame.Click += new System.EventHandler(this.AddGameButton_Click);
             // 
-            // textBox2
+            // GameNameField
             // 
-            this.textBox2.Location = new System.Drawing.Point(94, 101);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(259, 20);
-            this.textBox2.TabIndex = 6;
-            this.textBox2.Text = "Game Name";
-            this.textBox2.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBox2_MouseClick);
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            this.GameNameField.Location = new System.Drawing.Point(94, 101);
+            this.GameNameField.Name = "GameNameField";
+            this.GameNameField.Size = new System.Drawing.Size(259, 20);
+            this.GameNameField.TabIndex = 6;
+            this.GameNameField.Text = "Game Name";
+            this.GameNameField.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBox2_MouseClick);
             // 
             // delBackup
             // 
@@ -137,13 +134,13 @@
             this.ClientSize = new System.Drawing.Size(366, 134);
             this.Controls.Add(this.delGame);
             this.Controls.Add(this.delBackup);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.GameNameField);
+            this.Controls.Add(this.AddGame);
+            this.Controls.Add(this.GameSelect);
+            this.Controls.Add(this.SaveSelect);
+            this.Controls.Add(this.BackupNameField);
+            this.Controls.Add(this.RestoreButton);
+            this.Controls.Add(this.BackupButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Save Manager";
@@ -155,13 +152,13 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button BackupButton;
+        private System.Windows.Forms.Button RestoreButton;
+        private System.Windows.Forms.TextBox BackupNameField;
+        private System.Windows.Forms.ComboBox SaveSelect;
+        private System.Windows.Forms.ComboBox GameSelect;
+        private System.Windows.Forms.Button AddGame;
+        private System.Windows.Forms.TextBox GameNameField;
         private System.Windows.Forms.Button delBackup;
         private System.Windows.Forms.Button delGame;
     }
